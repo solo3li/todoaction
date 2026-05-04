@@ -43,3 +43,4 @@ jobs:
           docker run -d --name todo -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
           sleep 5
           docker exec todo python manage.py migrate
+          docker exec todo python manage.py seed_products
