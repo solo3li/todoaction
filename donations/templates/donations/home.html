@@ -1,0 +1,14 @@
+{% extends 'donations/base.html' %}
+
+{% block content %}
+    <h1>Support Our Cause</h1>
+    <p>Your contribution helps us keep the project alive.</p>
+    <form action="{% url 'create-checkout-session' %}" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="amount">Donation Amount (USD)</label>
+            <input type="number" name="amount" id="amount" value="10.00" min="1.00" step="0.01" required>
+        </div>
+        <button type="submit" class="btn">Donate with Stripe</button>
+    </form>
+{% endblock %}

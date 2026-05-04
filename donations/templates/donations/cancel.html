@@ -1,0 +1,8 @@
+{% extends 'donations/base.html' %}
+
+{% block content %}
+    <div class="cancel-icon">✕</div>
+    <h1>Donation Cancelled</h1>
+    <p>The payment process was not completed.</p>
+    <a href="{% url 'home' %}" class="btn" style="text-decoration: none; display: block;">Try Again</a>
+{% endblock %}
