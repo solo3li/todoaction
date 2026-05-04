@@ -1,8 +1,57 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth import login as auth_login, authenticate
+from django.contrib.auth.views import LoginView
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.models import User
 from .models import Todo
+import random
+
+class CustomLoginView(LoginView):
+    def form_valid(self, form):
+        # Do not log the user in yet
+        user = form.get_user()
+        otp = str(random.randint(100000, 999999))
+        
+        # Store user ID and OTP in session
+        self.request.session['pre_otp_user_id'] = user.pk
+        self.request.session['otp_code'] = otp
+        
+        # Send OTP via email
+        send_mail(
+            'Your Verification Code',
+            f'Your verification code is: {otp}',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        
+        return redirect('verify_otp')
+
+def verify_otp(request):
+    user_id = request.session.get('pre_otp_user_id')
+    if not user_id:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+        saved_otp = request.session.get('otp_code')
+        
+        if entered_otp == saved_otp:
+            user = User.objects.get(pk=user_id)
+            auth_login(request, user)
+            # Clean up session
+            del request.session['pre_otp_user_id']
+            del request.session['otp_code']
+            return redirect('todo_list')
+        else:
+            return render(request, 'todos/verify_otp.html', {
+                'error': 'Invalid OTP. Please try again.'
+            })
+            
+    return render(request, 'todos/verify_otp.html')
 
 @login_required
 def todo_list(request):
@@ -32,7 +81,7 @@ def signup(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            auth_login(request, user)
             return redirect('todo_list')
     else:
         form = UserCreationForm()
