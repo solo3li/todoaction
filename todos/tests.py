@@ -24,7 +24,7 @@ class TodoViewTest(TestCase):
         self.client.login(username='testuser', password='password123')
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "My Todo List")
+        self.assertContains(response, "My Tasks")
 
     def test_todo_list_view_unauthenticated(self):
         response = self.client.get('/')
