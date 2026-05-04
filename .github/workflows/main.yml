@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-push:
+  build-push-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,15 +17,27 @@ jobs:
         pip install -r requirements.txt
         python manage.py test
 
-    - name: Step 3 - Log in to Docker Hub
+    - name: Step 3 - Log in and Build/Push Docker Image
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Step 4 - Build and Push Docker Image
+      
+    - name: Build and Push
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+
+    - name: Step 4 - Deploy to VPS via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 47.84.69.17
+        username: root
+        password: ${{ secrets.VPS_PASSWORD }}
+        script: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+          docker stop todo || true
+          docker rm todo || true
+          docker run -d --name todo -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
