@@ -7,27 +7,26 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
 from .models import Todo
+from django import forms
 import random
+
+def send_otp_email(request, user):
+    otp = str(random.randint(100000, 999999))
+    request.session['pre_otp_user_id'] = user.pk
+    request.session['otp_code'] = otp
+    
+    send_mail(
+        'Your Verification Code',
+        f'Your verification code is: {otp}',
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )
 
 class CustomLoginView(LoginView):
     def form_valid(self, form):
-        # Do not log the user in yet
         user = form.get_user()
-        otp = str(random.randint(100000, 999999))
-        
-        # Store user ID and OTP in session
-        self.request.session['pre_otp_user_id'] = user.pk
-        self.request.session['otp_code'] = otp
-        
-        # Send OTP via email
-        send_mail(
-            'Your Verification Code',
-            f'Your verification code is: {otp}',
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            fail_silently=False,
-        )
-        
+        send_otp_email(self.request, user)
         return redirect('verify_otp')
 
 def verify_otp(request):
@@ -43,8 +42,10 @@ def verify_otp(request):
             user = User.objects.get(pk=user_id)
             auth_login(request, user)
             # Clean up session
-            del request.session['pre_otp_user_id']
-            del request.session['otp_code']
+            if 'pre_otp_user_id' in request.session:
+                del request.session['pre_otp_user_id']
+            if 'otp_code' in request.session:
+                del request.session['otp_code']
             return redirect('todo_list')
         else:
             return render(request, 'todos/verify_otp.html', {
@@ -76,13 +77,18 @@ def delete_todo(request, pk):
     todo.delete()
     return redirect('todo_list')
 
+class UserSignupForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    class Meta(UserCreationForm.Meta):
+        fields = UserCreationForm.Meta.fields + ('email',)
+
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserSignupForm(request.POST)
         if form.is_valid():
             user = form.save()
-            auth_login(request, user)
-            return redirect('todo_list')
+            send_otp_email(request, user)
+            return redirect('verify_otp')
     else:
-        form = UserCreationForm()
+        form = UserSignupForm()
     return render(request, 'registration/signup.html', {'form': form})
