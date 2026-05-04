@@ -1,29 +1,32 @@
 {% extends 'todos/base.html' %}
 
-{% block title %}My Todos - Todo App{% endblock %}
+{% block title %}My Tasks - TodoStack{% endblock %}
 
 {% block content %}
-    <h1>My Todo List</h1>
+    <h1 style="margin-bottom: 2rem;">My Tasks</h1>
     
-    <form method="post" style="display: flex; gap: 10px; margin-bottom: 2rem;">
+    <form method="post" style="display: flex; gap: 0.75rem; margin-bottom: 2.5rem;">
         {% csrf_token %}
-        <input type="text" name="title" placeholder="What needs to be done?" required style="flex-grow: 1;">
-        <button type="submit">Add Task</button>
+        <input type="text" name="title" placeholder="Add a new task..." required style="flex-grow: 1;">
+        <button type="submit" class="btn" style="width: auto; padding: 0.75rem 1.25rem;">Add</button>
     </form>
 
     <div class="todo-list">
         {% for todo in todos %}
-            <div class="todo-item">
-                <span class="{% if todo.completed %}completed{% endif %}">{{ todo.title }}</span>
+            <div class="todo-item {% if todo.completed %}completed{% endif %}">
+                <span class="todo-text">{{ todo.title }}</span>
                 <div class="actions">
-                    <a href="{% url 'toggle_todo' todo.pk %}">
-                        {% if todo.completed %}↩️ Undo{% else %}✅ Done{% endif %}
+                    <a href="{% url 'toggle_todo' todo.pk %}" class="action-done">
+                        {% if todo.completed %}↩️{% else %}✅{% endif %}
                     </a>
-                    <a href="{% url 'delete_todo' todo.pk %}" class="delete" onclick="return confirm('Delete this task?')">🗑️ Delete</a>
+                    <a href="{% url 'delete_todo' todo.pk %}" class="action-delete" onclick="return confirm('Delete this task?')">🗑️</a>
                 </div>
             </div>
         {% empty %}
-            <p style="text-align: center; color: #888;">No tasks yet. Enjoy your day! ☀️</p>
+            <div style="text-align: center; padding: 2rem 0;">
+                <p style="color: var(--text-muted); font-size: 1.125rem;">All caught up! 🛋️</p>
+                <p style="font-size: 0.875rem; color: var(--text-muted);">Create your first task above.</p>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}

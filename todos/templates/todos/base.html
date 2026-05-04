@@ -4,116 +4,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Todo App{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4a90e2;
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-            --card-bg: #fff;
-            --border-color: #ddd;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
             margin: 0;
+            line-height: 1.5;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
         }
 
         nav {
-            width: 100%;
-            background-color: var(--card-bg);
-            padding: 1rem 2rem;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            box-sizing: border-box;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .container {
+            flex: 1;
             width: 100%;
-            max-width: 500px;
-            margin-top: 2rem;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 480px;
+            margin: 3rem auto;
+            padding: 0 1rem;
         }
 
-        h1, h2 { text-align: center; color: var(--primary-color); }
+        .card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            shadow: var(--shadow);
+        }
 
-        .form-group { margin-bottom: 1rem; }
+        h1, h2 { 
+            margin-top: 0; 
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: -0.025em;
+        }
+
+        .form-group { margin-bottom: 1.25rem; }
+        
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
         input[type="text"], input[type="password"], input[type="email"] {
             width: 100%;
-            padding: 0.8rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s, ring 0.2s;
+            outline: none;
         }
 
-        button, .btn {
-            background-color: var(--primary-color);
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary);
             color: white;
-            padding: 0.8rem 1.2rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
             text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
+            transition: background-color 0.2s;
+            width: 100%;
         }
 
-        button:hover, .btn:hover { opacity: 0.9; }
+        .btn:hover { background-color: var(--primary-hover); }
 
         .todo-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
         }
 
         .todo-item:last-child { border-bottom: none; }
 
-        .completed { text-decoration: line-through; color: #888; }
-
-        .actions a {
-            margin-left: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--primary-color);
+        .todo-text { flex: 1; font-size: 1rem; }
+        .completed .todo-text { 
+            text-decoration: line-through; 
+            color: var(--text-muted); 
         }
 
-        .actions a.delete { color: var(--danger-color); }
+        .actions { display: flex; gap: 0.75rem; }
+        .actions a {
+            text-decoration: none;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            transition: background 0.2s;
+        }
+
+        .action-done { color: var(--success); }
+        .action-done:hover { background: #f0fdf4; }
         
-        .auth-links a { color: var(--primary-color); margin-left: 1rem; }
+        .action-delete { color: var(--danger); }
+        .action-delete:hover { background: #fef2f2; }
+
+        .auth-nav { display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; }
+        .auth-nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; }
+        .auth-nav a:hover { color: var(--primary); }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        .help-text {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body>
     <nav>
-        <a href="{% url 'todo_list' %}" style="font-weight: bold; text-decoration: none; color: inherit;">📝 TodoApp</a>
-        <div class="auth-links">
+        <a href="{% url 'todo_list' %}" class="logo">
+            <span>🚀</span> TodoStack
+        </a>
+        <div class="auth-nav">
             {% if user.is_authenticated %}
-                <span>Hello, {{ user.username }}</span>
+                <span style="color: var(--text-muted)">{{ user.username }}</span>
                 <form action="{% url 'logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" style="background:none; border:none; color:var(--primary-color); padding:0; font:inherit; cursor:pointer; margin-left:1rem;">Logout</button>
+                    <button type="submit" class="logout-btn">Logout</button>
                 </form>
             {% else %}
                 <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'signup' %}">Signup</a>
+                <a href="{% url 'signup' %}" style="color: var(--primary)">Sign up</a>
             {% endif %}
         </div>
     </nav>
 
     <div class="container">
-        {% block content %}{% endblock %}
+        <div class="card">
+            {% block content %}{% endblock %}
+        </div>
     </div>
 </body>
 </html>

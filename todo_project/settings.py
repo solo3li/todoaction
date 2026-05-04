@@ -119,3 +119,4 @@ STATIC_URL = 'static/'
 
 LOGIN_REDIRECT_URL = 'todo_list'
 LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
