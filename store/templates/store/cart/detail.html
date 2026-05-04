@@ -1,0 +1,47 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Your Cart - Shoply{% endblock %}
+
+{% block content %}
+    <h1>Shopping Cart</h1>
+    
+    {% if cart.items.all %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.items.all %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'store:product_detail' item.product.id item.product.slug %}" style="text-decoration: none; color: var(--text-main); font-weight: 500;">
+                                {{ item.product.name }}
+                            </a>
+                        </td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.product.price }}</td>
+                        <td>${{ item.total_price }}</td>
+                        <td>
+                            <a href="{% url 'store:cart_remove' item.id %}" style="color: var(--danger); text-decoration: none; font-size: 0.875rem;">Remove</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="margin-top: 2rem; display: flex; justify-content: flex-end; align-items: center; gap: 2rem;">
+            <a href="{% url 'store:order_create' %}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">Checkout</a>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem 0;">
+            <p style="font-size: 1.25rem; color: var(--text-muted);">Your cart is empty.</p>
+            <a href="{% url 'store:product_list' %}" class="btn btn-primary" style="margin-top: 1.5rem;">Start Shopping</a>
+        </div>
+    {% endif %}
+{% endblock %}

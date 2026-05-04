@@ -1,0 +1,19 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Order Confirmed - Shoply{% endblock %}
+
+{% block content %}
+    <div style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 5rem; margin-bottom: 2rem;">🎉</div>
+        <h1 style="margin-bottom: 1rem;">Thank you for your order!</h1>
+        <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 3rem;">
+            Your order <strong>#{{ order.id }}</strong> has been placed successfully. 
+            We've sent a confirmation email to {{ order.email }}.
+        </p>
+        
+        <div style="display: flex; justify-content: center; gap: 1.5rem;">
+            <a href="{% url 'store:product_list' %}" class="btn btn-primary" style="width: auto;">Continue Shopping</a>
+            <a href="{% url 'store:order_list' %}" class="btn" style="width: auto; background: white; color: var(--text-main); border: 1px solid var(--border);">View My Orders</a>
+        </div>
+    </div>
+{% endblock %}

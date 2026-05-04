@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.admin_urls if hasattr(admin.site, 'admin_urls') else admin.site.urls),
-    path('', include('todos.urls')),
+    path('', include('store.urls')),
+    path('todos/', include('todos.urls')),
 ]

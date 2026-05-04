@@ -1,0 +1,39 @@
+{% extends 'store/base.html' %}
+
+{% block title %}{{ product.name }} - Shoply{% endblock %}
+
+{% block content %}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+        <div style="background: white; border-radius: 1.5rem; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow);">
+            <img src="{{ product.image_url|default:'https://via.placeholder.com/600x400?text=No+Image' }}" alt="{{ product.name }}" style="width: 100%; display: block;">
+        </div>
+        
+        <div>
+            <nav style="background: none; border: none; padding: 0; margin-bottom: 1rem; box-shadow: none;">
+                <a href="{% url 'store:product_list' %}" style="margin: 0; color: var(--text-muted);">&larr; Back to Shop</a>
+            </nav>
+            
+            <h1 style="text-align: left; margin-bottom: 0.5rem; font-size: 2.5rem;">{{ product.name }}</h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1.5rem;">Category: {{ product.category.name }}</p>
+            
+            <div style="font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 2rem;">
+                ${{ product.price }}
+            </div>
+            
+            <div style="background: white; padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--border); margin-bottom: 2rem;">
+                <h3 style="margin-top: 0;">Description</h3>
+                <p style="line-height: 1.6; color: var(--text-main);">
+                    {{ product.description|default:"No description provided for this product." }}
+                </p>
+            </div>
+            
+            {% if product.stock > 0 %}
+                <p style="color: var(--success); font-weight: 600; margin-bottom: 1rem;">In Stock ({{ product.stock }} available)</p>
+                <a href="{% url 'store:cart_add' product.id %}" class="btn btn-primary" style="padding: 1.25rem 2.5rem; font-size: 1.2rem; width: auto;">Add to Cart</a>
+            {% else %}
+                <p style="color: var(--danger); font-weight: 600;">Out of Stock</p>
+                <button class="btn" disabled style="background: #ccc; cursor: not-allowed; width: auto;">Out of Stock</button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
