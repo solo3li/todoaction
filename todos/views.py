@@ -3,7 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib.auth.views import LoginView
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.conf import settings
 from django.contrib.auth.models import User
 from .models import Todo
@@ -15,13 +17,17 @@ def send_otp_email(request, user):
     request.session['pre_otp_user_id'] = user.pk
     request.session['otp_code'] = otp
     
-    send_mail(
-        'Your Verification Code',
-        f'Your verification code is: {otp}',
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-        fail_silently=False,
-    )
+    subject = 'Your Verification Code'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to = user.email
+    
+    # Load HTML template
+    html_content = render_to_string('todos/email_otp.html', {'otp': otp, 'user': user})
+    text_content = strip_tags(html_content)
+    
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
 
 class CustomLoginView(LoginView):
     def form_valid(self, form):
