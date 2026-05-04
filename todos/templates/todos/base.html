@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Todo App{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
@@ -16,10 +16,27 @@
             --border: #e2e8f0;
             --success: #22c55e;
             --danger: #ef4444;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -30,10 +47,12 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         nav {
-            background: var(--card-bg);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border);
             padding: 0.75rem 2rem;
             display: flex;
@@ -42,17 +61,21 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            animation: fadeIn 0.8s ease-out;
         }
 
         .logo {
             font-size: 1.25rem;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--primary);
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            transition: var(--transition);
         }
+        
+        .logo:hover { transform: scale(1.05); }
 
         .container {
             flex: 1;
@@ -65,16 +88,17 @@
         .card {
             background: var(--card-bg);
             padding: 2.5rem;
-            border-radius: 1rem;
+            border-radius: 1.5rem;
             border: 1px solid var(--border);
-            shadow: var(--shadow);
+            box-shadow: var(--shadow);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         h1, h2 { 
             margin-top: 0; 
-            font-weight: 600;
+            font-weight: 700;
             text-align: center;
-            letter-spacing: -0.025em;
+            letter-spacing: -0.05em;
         }
 
         .form-group { margin-bottom: 1.25rem; }
@@ -82,24 +106,24 @@
         label {
             display: block;
             font-size: 0.875rem;
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 0.5rem;
             color: var(--text-main);
         }
 
-        input[type="text"], input[type="password"], input[type="email"] {
+        input {
             width: 100%;
             padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
             font-size: 1rem;
-            transition: border-color 0.2s, ring 0.2s;
+            transition: var(--transition);
             outline: none;
         }
 
         input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
         }
 
         .btn {
@@ -109,68 +133,93 @@
             background-color: var(--primary);
             color: white;
             padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            border-radius: 0.5rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
             border: none;
             cursor: pointer;
             text-decoration: none;
-            transition: background-color 0.2s;
+            transition: var(--transition);
             width: 100%;
+            box-shadow: var(--shadow-sm);
         }
 
-        .btn:hover { background-color: var(--primary-hover); }
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn:active { transform: translateY(0); }
 
         .todo-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 0;
+            padding: 1.25rem 0.5rem;
             border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            animation: fadeIn 0.5s ease-out backwards;
+        }
+        
+        .todo-item:hover {
+            background-color: #fcfdfe;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            border-radius: 0.5rem;
         }
 
-        .todo-item:last-child { border-bottom: none; }
-
-        .todo-text { flex: 1; font-size: 1rem; }
+        .todo-text { 
+            flex: 1; 
+            font-size: 1rem; 
+            transition: var(--transition);
+        }
+        
         .completed .todo-text { 
             text-decoration: line-through; 
-            color: var(--text-muted); 
+            color: var(--text-muted);
+            opacity: 0.6;
         }
 
-        .actions { display: flex; gap: 0.75rem; }
+        .actions { display: flex; gap: 0.5rem; }
         .actions a {
             text-decoration: none;
-            font-size: 0.875rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            transition: background 0.2s;
+            font-size: 1.1rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            transition: var(--transition);
         }
 
-        .action-done { color: var(--success); }
-        .action-done:hover { background: #f0fdf4; }
-        
-        .action-delete { color: var(--danger); }
-        .action-delete:hover { background: #fef2f2; }
+        .action-done:hover { background: #f0fdf4; transform: scale(1.2); }
+        .action-delete:hover { background: #fef2f2; transform: scale(1.2); }
 
-        .auth-nav { display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; }
-        .auth-nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; }
-        .auth-nav a:hover { color: var(--primary); }
+        .auth-nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.875rem; }
+        .auth-nav a { color: var(--text-muted); text-decoration: none; font-weight: 600; transition: var(--transition); }
+        .auth-nav a:hover { color: var(--primary); transform: translateY(-1px); }
         
         .logout-btn {
-            background: none;
+            background: #fef2f2;
             border: none;
-            padding: 0;
-            font: inherit;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
             cursor: pointer;
             color: var(--danger);
-            font-weight: 500;
+            font-weight: 600;
+            transition: var(--transition);
         }
+        
+        .logout-btn:hover { background: var(--danger); color: white; }
 
-        .help-text {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
+        /* Staggered animation delays for list items */
+        .todo-item:nth-child(1) { animation-delay: 0.1s; }
+        .todo-item:nth-child(2) { animation-delay: 0.15s; }
+        .todo-item:nth-child(3) { animation-delay: 0.2s; }
+        .todo-item:nth-child(4) { animation-delay: 0.25s; }
+        .todo-item:nth-child(5) { animation-delay: 0.3s; }
     </style>
 </head>
 <body>
@@ -180,14 +229,14 @@
         </a>
         <div class="auth-nav">
             {% if user.is_authenticated %}
-                <span style="color: var(--text-muted)">{{ user.username }}</span>
+                <span style="color: var(--text-main); font-weight: 500;">{{ user.username }}</span>
                 <form action="{% url 'logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" class="logout-btn">Logout</button>
                 </form>
             {% else %}
                 <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'signup' %}" style="color: var(--primary)">Sign up</a>
+                <a href="{% url 'signup' %}" style="color: var(--primary); background: rgba(99,102,241,0.1); padding: 0.5rem 1rem; border-radius: 0.5rem;">Sign up</a>
             {% endif %}
         </div>
     </nav>
