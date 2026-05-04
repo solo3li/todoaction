@@ -1,32 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Todo App</title>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
-        .todo-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
-        .completed { text-decoration: line-through; color: #888; }
-    </style>
-</head>
-<body>
-    <h1>Todo List</h1>
-    <form method="post">
+{% extends 'todos/base.html' %}
+
+{% block title %}My Todos - Todo App{% endblock %}
+
+{% block content %}
+    <h1>My Todo List</h1>
+    
+    <form method="post" style="display: flex; gap: 10px; margin-bottom: 2rem;">
         {% csrf_token %}
-        <input type="text" name="title" placeholder="New todo..." required>
-        <button type="submit">Add</button>
+        <input type="text" name="title" placeholder="What needs to be done?" required style="flex-grow: 1;">
+        <button type="submit">Add Task</button>
     </form>
-    <ul>
+
+    <div class="todo-list">
         {% for todo in todos %}
-            <li class="todo-item">
+            <div class="todo-item">
                 <span class="{% if todo.completed %}completed{% endif %}">{{ todo.title }}</span>
-                <div>
-                    <a href="{% url 'toggle_todo' todo.pk %}">{% if todo.completed %}Undo{% else %}Done{% endif %}</a>
-                    <a href="{% url 'delete_todo' todo.pk %}" onclick="return confirm('Are you sure?')">Delete</a>
+                <div class="actions">
+                    <a href="{% url 'toggle_todo' todo.pk %}">
+                        {% if todo.completed %}↩️ Undo{% else %}✅ Done{% endif %}
+                    </a>
+                    <a href="{% url 'delete_todo' todo.pk %}" class="delete" onclick="return confirm('Delete this task?')">🗑️ Delete</a>
                 </div>
-            </li>
+            </div>
         {% empty %}
-            <li>No todos yet!</li>
+            <p style="text-align: center; color: #888;">No tasks yet. Enjoy your day! ☀️</p>
         {% endfor %}
-    </ul>
-</body>
-</html>
+    </div>
+{% endblock %}
